@@ -59,3 +59,21 @@ def test_generator_input():
     result = list(json_generator(obj))
 
     assert expected == result
+
+
+def test_simple_values():
+    obj = [
+        {},
+        [],
+        (),
+        123,
+        123.456,
+        True,
+        False,
+        None,
+        "abc",
+    ]
+    expected = json.dumps(obj)
+    result = "".join(json_generator(obj))
+
+    assert expected == result
