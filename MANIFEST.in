@@ -1,0 +1,5 @@
+include json_stream_generator/VERSION
+recursive-include requirements *.txt
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

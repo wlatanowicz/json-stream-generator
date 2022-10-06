@@ -1,0 +1,47 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+
+    - name: Cache python packages
+      uses: actions/cache@v2
+      env:
+        cache-name: test-python-packages
+      with:
+        path: '~/.local/**/site-packages'
+        key: ${{ runner.os }}-${{ matrix.python }}-${{ env.cache-name }}-${{ hashFiles('requirements/**/*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.python }}-${{ env.cache-name }}-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/tests.txt --user
+
+    - name: Check with black
+      run: |
+        python -m black --check json_stream_generator
+
+    - name: Test with pytest
+      run: |
+        python -m pytest tests
