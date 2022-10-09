@@ -9,6 +9,13 @@ with open(path.join(path.dirname(__file__), "VERSION")) as f:
 __author__ = "Wiktor Latanowicz"
 
 
+KEY_CONVERTION_LUT = {
+    None: "null",
+    True: "true",
+    False: "false",
+}
+
+
 def json_generator(obj: Any, depth: int = 1) -> Generator[str, None, None]:
     if depth < 1:
         yield json.dumps(obj)
@@ -17,7 +24,13 @@ def json_generator(obj: Any, depth: int = 1) -> Generator[str, None, None]:
         for i, (key, value) in enumerate(obj.items()):
             if i > 0:
                 yield ", "
-            yield json.dumps(str(key)) + ": "
+
+            if not isinstance(key, (str, int, float, bool)) and key is not None:
+                raise TypeError(
+                    f"keys must be str, int, float, bool or None, not {key.__class__.__name__}"
+                )
+
+            yield json.dumps(str(KEY_CONVERTION_LUT.get(key, key))) + ": "
             yield from json_generator(value, depth=depth - 1)
         yield "}"
     elif isinstance(obj, (list, tuple)) or inspect.isgenerator(obj):

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 
@@ -77,3 +78,36 @@ def test_simple_values():
     result = "".join(json_generator(obj))
 
     assert expected == result
+
+
+def test_different_key_types():
+    obj = {
+        123: "A",
+        123.456: "B",
+        True: "C",
+        False: "D",
+        None: "E",
+        "abc": "F",
+    }
+    expected = json.dumps(obj)
+    result = "".join(json_generator(obj))
+
+    assert expected == result
+
+
+# fmt: off
+@pytest.mark.parametrize(
+    "obj",
+    [
+        {(1, 2): "A"},
+        [{(1, 2): "A"}],
+        {datetime.now(): "A"},
+        [{datetime.now(): "A"}],
+        ({datetime.now(): "A"} for _ in range(5)),
+        ({(1, 2): "A"} for _ in range(5)),
+    ]
+)
+# fmt: on
+def test_invalid_keys(obj):
+    with pytest.raises(TypeError):
+        "".join(json_generator(obj))

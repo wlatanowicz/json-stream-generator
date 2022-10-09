@@ -1,7 +1,6 @@
+import rest_framework
 from django.db.models.query import QuerySet
 from django.http import StreamingHttpResponse
-
-import rest_framework
 
 from .. import json_generator
 
