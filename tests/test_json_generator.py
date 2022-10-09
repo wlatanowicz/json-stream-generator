@@ -9,7 +9,7 @@ from json_stream_generator import json_generator
 # fmt: off
 @pytest.mark.parametrize(
     "depth",
-    list(range(1, 6))
+    list(range(0, 4))
 )
 @pytest.mark.parametrize(
     "obj",
@@ -22,6 +22,15 @@ from json_stream_generator import json_generator
         {"a": "b", "c": [1, "a", {"a": "b", "c": 2}]},
         "abcd",
         234,
+        {},
+        [],
+        {"a": []},
+        {"a": {}},
+        [{}],
+        [[]],
+        [{}, []],
+        [[], []],
+        {"a": [{}, {}]},
     )
 )
 # fmt: on
@@ -37,11 +46,11 @@ def test_output_equals_json_dumps(depth, obj):
     "depth, obj, expected",
     [
         (0, {"a": "b"}, ['{"a": "b"}']),
-        (1, {"a": "b"}, ['{', '"a": ', '"b"', '}']),
-        (2, {"a": "b"}, ['{', '"a": ', '"b"', '}']),
-        (3, {"a": "b"}, ['{', '"a": ', '"b"', '}']),
-        (1, {"a": [1,2,3]}, ['{', '"a": ', '[1, 2, 3]', '}']),
-        (2, {"a": [1,2,3]}, ['{', '"a": ', '[', '1', ', ', '2', ', ', '3', ']', '}']),
+        (1, {"a": "b"}, ['{"a": ', '"b"', '}']),
+        (2, {"a": "b"}, ['{"a": ', '"b"', '}']),
+        (3, {"a": "b"}, ['{"a": ', '"b"', '}']),
+        (1, {"a": [1,2,3]}, ['{"a": ', '[1, 2, 3]', '}']),
+        (2, {"a": [1,2,3]}, ['{"a": ', '[1', ', 2', ', 3', ']', '}']),
     ]
 )
 # fmt: on
@@ -54,7 +63,7 @@ def test_output_in_chunks(depth, obj, expected):
 def test_generator_input():
     obj = (num for num in range(5))
     # fmt: off
-    expected = ["[", "0", ", ", "1", ", ", "2", ", ", "3", ", ", "4", "]"]
+    expected = ["[0", ", 1", ", 2", ", 3", ", 4", "]"]
     # fmt: on
 
     result = list(json_generator(obj))
